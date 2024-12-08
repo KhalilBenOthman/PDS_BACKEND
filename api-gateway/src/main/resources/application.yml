@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: api-gateway
+
+  ##GATEWAY CONFIGURATIONS
+
+  cloud:
+    gateway:
+      routes:
+        ## AbsService
+        - id: absService
+          uri: lb://absService
+          predicates:
+            - Path=/absService/**
+          filters:
+            - StripPrefix=1
+
+        ## userService
+        - id: userService
+          uri: lb://userService
+          predicates:
+            - Path=/userService/**
+          filters:
+            - StripPrefix=1
+            
+        ## authService
+        - id: authService
+          uri: lb://authService
+          predicates:
+            - Path=/authService/**
+          filters:
+            - StripPrefix=1
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    preferIpAddress: true # Prefer the IP address instead of hostname
+    ipAddress: 127.0.0.1 # Replace with your local IP address

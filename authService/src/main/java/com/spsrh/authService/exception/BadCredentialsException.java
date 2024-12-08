@@ -1,0 +1,7 @@
+package com.spsrh.authService.exception;
+
+public class BadCredentialsException extends RuntimeException {
+    public BadCredentialsException(String message) {
+        super(message);
+    }
+}

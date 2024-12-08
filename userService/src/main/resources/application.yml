@@ -1,0 +1,7 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true # Prefer the IP address instead of hostname
+    ipAddress: 127.0.0.1
