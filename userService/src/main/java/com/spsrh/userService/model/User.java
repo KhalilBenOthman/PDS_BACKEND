@@ -1,41 +1,38 @@
 package com.spsrh.userService.model;
 
-import javax.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "users")
-public class User {
+import javax.persistence.*;
+import lombok.Data;
 
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED) // For role hierarchy
+@Data
+@Table(name = "app_user")
+public class User {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String username;
-
-    @Column(nullable = false)
-    private String passwordHash;
+    
+    @Column(nullable = false, unique = true)
+    private String firstname;
+    @Column(nullable = false, unique = true)
+    private String lastname;
 
     @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
-    private Role role; // e.g., Employee, Manager, Admin
+    private String password;
 
-    @Column(nullable = false)
-    private Boolean isActive;
+    @Enumerated(EnumType.STRING)
+    private RoleEnum role;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-    
     private String Adresse;
     
     private String city;
@@ -46,24 +43,22 @@ public class User {
     
     private String phoneNumber;
     
-    @ManyToOne
-    @JoinColumn(name = "team_id")
-    @JsonBackReference
-    private ManagerTeam team; // Relation pour lier l'utilisateur à une équipe
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference // Allow serialization of Employee without infinite loop
-    private Employee employee;
+    
+    @Column(nullable = false)
+    private Boolean isActive;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
     
     
-    // Getters and setters
     
-	public Long getUserId() {
-		return userId;
+	public Long getId() {
+		return id;
 	}
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getUsername() {
@@ -74,14 +69,6 @@ public class User {
 		this.username = username;
 	}
 
-	public String getPasswordHash() {
-		return passwordHash;
-	}
-
-	public void setPasswordHash(String passwordHash) {
-		this.passwordHash = passwordHash;
-	}
-
 	public String getEmail() {
 		return email;
 	}
@@ -90,20 +77,20 @@ public class User {
 		this.email = email;
 	}
 
-	public Role getRole() {
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public RoleEnum getRole() {
 		return role;
 	}
 
-	public void setRole(Role role) {
+	public void setRole(RoleEnum role) {
 		this.role = role;
-	}
-
-	public Boolean getIsActive() {
-		return isActive;
-	}
-
-	public void setIsActive(Boolean isActive) {
-		this.isActive = isActive;
 	}
 
 	public String getAdresse() {
@@ -146,33 +133,34 @@ public class User {
 		this.phoneNumber = phoneNumber;
 	}
 
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+
 	public LocalDateTime getCreatedAt() {
-	    return createdAt;
+		return createdAt;
 	}
 
 	public void setCreatedAt(LocalDateTime createdAt) {
-	    this.createdAt = createdAt;
+		this.createdAt = createdAt;
 	}
 
 	public LocalDateTime getUpdatedAt() {
-	    return updatedAt;
+		return updatedAt;
 	}
 
 	public void setUpdatedAt(LocalDateTime updatedAt) {
-	    this.updatedAt = updatedAt;
+		this.updatedAt = updatedAt;
 	}
-	
-	public ManagerTeam getTeam() {
-		return team;
-	}
-
-	public void setTeam(ManagerTeam team) {
-		this.team = team;
-	}
-
+    
 	@PrePersist
 	public void prePersist() {
 	    this.createdAt = LocalDateTime.now();
+	    isActive = true;
 	}
 
 	@PreUpdate
@@ -180,12 +168,21 @@ public class User {
 	    this.updatedAt = LocalDateTime.now();
 	}
 
-	public Employee getEmployee() {
-		return employee;
+	public String getFirstname() {
+		return firstname;
 	}
 
-	public void setEmployee(Employee employee) {
-		this.employee = employee;
-	}  
+	public void setFirstname(String firstname) {
+		this.firstname = firstname;
+	}
+
+	public String getLastname() {
+		return lastname;
+	}
+
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
+	}   
+    
     
 }

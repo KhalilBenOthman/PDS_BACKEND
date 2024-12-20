@@ -1,12 +1,14 @@
 package com.spsrh.userService.service.impl;
 
 import com.spsrh.userService.dto.ManagerDTO;
+import com.spsrh.userService.exception.ManagerNotFoundException;
+import com.spsrh.userService.exception.InvalidAssignationException;
+import com.spsrh.userService.model.Employee;
 import com.spsrh.userService.model.Manager;
-import com.spsrh.userService.model.Salarie;
+import com.spsrh.userService.repository.EmployeRepository;
 import com.spsrh.userService.repository.ManagerRepository;
-import com.spsrh.userService.repository.SalarieRepository;
 import com.spsrh.userService.service.ManagerService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,55 +17,63 @@ import java.util.stream.Collectors;
 @Service
 public class ManagerServiceImpl implements ManagerService {
 
-    @Autowired
-    private ManagerRepository managerRepository;
+    private final ManagerRepository managerRepository;
+    private final EmployeRepository employeRepository;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private SalarieRepository salarieRepository;
+    public ManagerServiceImpl(ManagerRepository managerRepository,
+                              EmployeRepository employeRepository,
+                              ModelMapper modelMapper) {
+        this.managerRepository = managerRepository;
+        this.employeRepository = employeRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
-    public Manager createManager(ManagerDTO managerDTO) {
-        Manager manager = new Manager();
-        manager.setId(managerDTO.getId());
-        manager.setTeamName(managerDTO.getTeamName());
+    public ManagerDTO getManagerByUsername(String username) {
+        Manager manager = managerRepository.findByUsername(username);
+        if (manager == null) {
+            throw new ManagerNotFoundException(username);
+        }
+        return modelMapper.map(manager, ManagerDTO.class);
+    }
 
-        // Fetch team members from their IDs and assign them to the manager
-        List<Salarie> teamMembers = managerDTO.getTeamMemberIds().stream()
-                .map(id -> salarieRepository.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException("Salarie not found with ID: " + id)))
+    @Override
+    public List<ManagerDTO> getAllManagers() {
+        return managerRepository.findAll().stream()
+                .map(manager -> modelMapper.map(manager, ManagerDTO.class))
                 .collect(Collectors.toList());
-        manager.setTeamMembers(teamMembers);
-
-        return managerRepository.save(manager);
-    }
-    
-    @Override
-    public List<Manager> getAllManagers() {
-        return managerRepository.findAll();
     }
 
     @Override
-    public Manager getManagerById(Long id) {
-        return managerRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Manager not found with ID: " + id));
+    public void addEmployeToTeam(String managerUsername, String employeUsername) {
+        Manager manager = managerRepository.findByUsername(managerUsername);
+        Employee employe = employeRepository.findByUsername(employeUsername);
+
+        if (manager == null || employe == null) {
+            throw new InvalidAssignationException("Invalid Manager or Employee username");
+        }
+
+        employe.setManager(manager);
+        manager.getTeam().add(employe);
+
+        employeRepository.save(employe);
+        managerRepository.save(manager);
     }
 
     @Override
-    public Manager updateManager(Long id, ManagerDTO managerDTO) {
-        Manager manager = getManagerById(id);
-        manager.setTeamName(managerDTO.getTeamName());
+    public void removeEmployeFromTeam(String managerUsername, String employeUsername) {
+        Manager manager = managerRepository.findByUsername(managerUsername);
+        Employee employe = employeRepository.findByUsername(employeUsername);
 
-        List<Salarie> teamMembers = managerDTO.getTeamMemberIds().stream()
-                .map(memberId -> salarieRepository.findById(memberId)
-                        .orElseThrow(() -> new IllegalArgumentException("Salarie not found with ID: " + memberId)))
-                .collect(Collectors.toList());
-        manager.setTeamMembers(teamMembers);
+        if (manager == null || employe == null || !manager.getTeam().contains(employe)) {
+            throw new InvalidAssignationException("Invalid Manager, Employee, or relationship");
+        }
 
-        return managerRepository.save(manager);
-    }
+        manager.getTeam().remove(employe);
+        employe.setManager(null);
 
-    @Override
-    public void deleteManager(Long id) {
-        managerRepository.deleteById(id);
+        employeRepository.save(employe);
+        managerRepository.save(manager);
     }
 }

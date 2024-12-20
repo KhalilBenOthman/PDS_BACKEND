@@ -1,6 +1,7 @@
 package com.spsrh.absService.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,115 +14,127 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-
 public class LeaveRequest {
-	
-	
 
-	    @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	    @ManyToOne
-	    @JoinColumn(name = "employee_id", nullable = false)
-	    private Employee employee;
+    @Column(nullable = false)
+    private String employeeUsername; // Links to the user service
 
-	    @Enumerated(EnumType.STRING)
-	    @Column(nullable = false)
-	    private LeaveType leaveType; // ENUM: VACATION, SICK_LEAVE, etc.
+    @Column(nullable = false)
+    private String managerUsername; // Links to the user service
 
-	    @Column(nullable = false)
-	    private LocalDate startDate;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LeaveType leaveType;
 
-	    @Column(nullable = false)
-	    private LocalDate endDate;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LeaveStatus leaveStatus = LeaveStatus.PENDING;
 
-	    @Enumerated(EnumType.STRING)
-	    @Column(nullable = false)
-	    private LeaveStatus status; // ENUM: PENDING, APPROVED, REJECTED
+    @Column(nullable = false)
+    private LocalDate  startDate;
 
-	    private String reason;
+    @Column(nullable = false)
+    private LocalDate  endDate;
 
-	    private String managerComment;
+    @Column(nullable = false)
+    private String reason;
 
-	    @Column(nullable = false)
-	    private LocalDate requestDate = LocalDate.now();
+    private String rejectionReason;
 
-	    // Getters et Setters
-	    
-		public Long getId() {
-			return id;
-		}
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-		public void setId(Long id) {
-			this.id = id;
-		}
+    private LocalDateTime updatedAt;
 
-		public Employee getEmployee() {
-			return employee;
-		}
+    // Getters and Setters
+    public Long getId() {
+        return id;
+    }
 
-		public void setEmployee(Employee employee) {
-			this.employee = employee;
-		}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-		public LeaveType getLeaveType() {
-			return leaveType;
-		}
+    public String getEmployeeUsername() {
+        return employeeUsername;
+    }
 
-		public void setLeaveType(LeaveType leaveType) {
-			this.leaveType = leaveType;
-		}
+    public void setEmployeeUsername(String employeeUsername) {
+        this.employeeUsername = employeeUsername;
+    }
 
-		public LocalDate getStartDate() {
-			return startDate;
-		}
+    public String getManagerUsername() {
+        return managerUsername;
+    }
 
-		public void setStartDate(LocalDate startDate) {
-			this.startDate = startDate;
-		}
+    public void setManagerUsername(String managerUsername) {
+        this.managerUsername = managerUsername;
+    }
 
-		public LocalDate getEndDate() {
-			return endDate;
-		}
+    public LeaveType getLeaveType() {
+        return leaveType;
+    }
 
-		public void setEndDate(LocalDate endDate) {
-			this.endDate = endDate;
-		}
+    public void setLeaveType(LeaveType leaveType) {
+        this.leaveType = leaveType;
+    }
 
-		public LeaveStatus getStatus() {
-			return status;
-		}
+    public LeaveStatus getLeaveStatus() {
+        return leaveStatus;
+    }
 
-		public void setStatus(LeaveStatus status) {
-			this.status = status;
-		}
+    public void setLeaveStatus(LeaveStatus leaveStatus) {
+        this.leaveStatus = leaveStatus;
+    }
 
-		public String getReason() {
-			return reason;
-		}
+    public LocalDate  getStartDate() {
+        return startDate;
+    }
 
-		public void setReason(String reason) {
-			this.reason = reason;
-		}
+    public void setStartDate(LocalDate  startDate) {
+        this.startDate = startDate;
+    }
 
-		public String getManagerComment() {
-			return managerComment;
-		}
+    public LocalDate  getEndDate() {
+        return endDate;
+    }
 
-		public void setManagerComment(String managerComment) {
-			this.managerComment = managerComment;
-		}
+    public void setEndDate(LocalDate  endDate) {
+        this.endDate = endDate;
+    }
 
-		public LocalDate getRequestDate() {
-			return requestDate;
-		}
+    public String getReason() {
+        return reason;
+    }
 
-		public void setRequestDate(LocalDate requestDate) {
-			this.requestDate = requestDate;
-		}
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
 
-	   
-	}
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
 
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+}

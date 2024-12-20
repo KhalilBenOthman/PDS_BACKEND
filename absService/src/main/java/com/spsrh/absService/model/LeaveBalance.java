@@ -1,81 +1,73 @@
 package com.spsrh.absService.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class LeaveBalance {
-	
 
-	
-	    @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	    @OneToOne
-	    @JoinColumn(name = "employee_id", nullable = false)
-	    private Employee employee;
+    @Column(nullable = false)
+    private String employeeUsername; // Reference to the employee
 
-	    @Column(nullable = false)
-	    private int totalLeaves;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LeaveType leaveType; // Type of leave (e.g., SICK, CASUAL)
 
-	    @Column(nullable = false)
-	    private int usedLeaves;
+    @Column(nullable = false)
+    private int totalDays; // Total leave days allocated
 
-	    @Column(nullable = false)
-	    private int remainingLeaves;
-	    
-	    // Getters et Setters
+    @Column(nullable = false)
+    private int remainingDays; // Remaining leave days
 
-		public Long getId() {
-			return id;
-		}
-
-		public void setId(Long id) {
-			this.id = id;
-		}
-
-		public Employee getEmployee() {
-			return employee;
-		}
-
-		public void setEmployee(Employee employee) {
-			this.employee = employee;
-		}
-
-		public int getTotalLeaves() {
-			return totalLeaves;
-		}
-
-		public void setTotalLeaves(int totalLeaves) {
-			this.totalLeaves = totalLeaves;
-		}
-
-		public int getUsedLeaves() {
-			return usedLeaves;
-		}
-
-		public void setUsedLeaves(int usedLeaves) {
-			this.usedLeaves = usedLeaves;
-		}
-
-		public int getRemainingLeaves() {
-			return remainingLeaves;
-		}
-
-		public void setRemainingLeaves(int remainingLeaves) {
-			this.remainingLeaves = remainingLeaves;
-		}
-
-	 
-	    
-	    
+	public Long getId() {
+		return id;
 	}
 
+	public void setId(Long id) {
+		this.id = id;
+	}
 
+	public String getEmployeeUsername() {
+		return employeeUsername;
+	}
 
+	public void setEmployeeUsername(String employeeUsername) {
+		this.employeeUsername = employeeUsername;
+	}
+
+	public LeaveType getLeaveType() {
+		return leaveType;
+	}
+
+	public void setLeaveType(LeaveType leaveType) {
+		this.leaveType = leaveType;
+	}
+
+	public int getTotalDays() {
+		return totalDays;
+	}
+
+	public void setTotalDays(int totalDays) {
+		this.totalDays = totalDays;
+	}
+
+	public int getRemainingDays() {
+		return remainingDays;
+	}
+
+	public void setRemainingDays(int remainingDays) {
+		this.remainingDays = remainingDays;
+	}
+    
+    
+    
+}

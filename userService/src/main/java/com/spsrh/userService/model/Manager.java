@@ -2,48 +2,33 @@ package com.spsrh.userService.model;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "managers")
-public class Manager {
-
-    @Id
-    private Long id; // Same as User.id
-
-    private String teamName;
-
-    @OneToMany(mappedBy = "manager")
-    private List<Salarie> teamMembers; // Team members managed by this manager.
-
-	public Long getId() {
-		return id;
+@DiscriminatorValue("MANAGER")  // This differentiates the Manager role from Employee
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class Manager extends Employee {
+	@OneToMany(mappedBy = "manager", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JsonManagedReference
+	private List<Employee> team; // Team of employees managed by this manager
+	
+    public List<Employee> getTeam() {
+		return team;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setTeam(List<Employee> team) {
+		this.team = team;
 	}
 
-	public String getTeamName() {
-		return teamName;
-	}
 
-	public void setTeamName(String teamName) {
-		this.teamName = teamName;
-	}
-
-	public List<Salarie> getTeamMembers() {
-		return teamMembers;
-	}
-
-	public void setTeamMembers(List<Salarie> teamMembers) {
-		this.teamMembers = teamMembers;
-	}
-
-    
-    
 }
-

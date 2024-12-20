@@ -1,98 +1,142 @@
 package com.spsrh.absService.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
+@DiscriminatorValue("EMPLOYEE") // This will be used to differentiate Employee type
+@Data
+@EqualsAndHashCode(callSuper = true) // For proper inheritance behavior
+public class Employee extends User {
+    
 
-public class Employee {
-	
-	
-	    @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long id;
+	@Column(name = "hire_date")
+    private LocalDateTime hireDate; // Example: use LocalDate for proper date handling
 
-	    @Column(nullable = false)
-	    private String firstName;
+    @Column(nullable = false)
+    private String jobTitle;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Department department;
+    @Column
+    private String skills; // JSON or separate skill table can be used    
+    private String salary; 
+    @Column(nullable = false)
+    private String availabilityStatus;    
+    @Column(name = "last_performance_review_date")
+    private LocalDateTime lastPerformanceReviewDate;
 
-	    @Column(nullable = false)
-	    private String lastName;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
-	    @Column(unique = true, nullable = false)
-	    private String email;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;    
+    
+    
+    
+    
+    @ManyToOne
+    @JoinColumn(name = "manager_id") // Foreign key to the manager's ID
+    @JsonBackReference
+    private Manager manager; // The manager of this employee
+    
+    
 
-	    private String position;
 
-	    private String department;
+	public LocalDateTime getHireDate() {
+		return hireDate;
+	}
 
-	    @Column(nullable = false)
-	    private boolean isActive = true;
+	public void setHireDate(LocalDateTime hireDate) {
+		this.hireDate = hireDate;
+	}
 
+	public Manager getManager() {
+		return manager;
+	}
 
-	    // Getters et Setters
-	
+	public void setManager(Manager manager) {
+		this.manager = manager;
+	}
 
-	    
-	    
-		public Long getId() {
-			return id;
-		}
+	public String getJobTitle() {
+		return jobTitle;
+	}
 
-		public void setId(Long id) {
-			this.id = id;
-		}
+	public void setJobTitle(String jobTitle) {
+		this.jobTitle = jobTitle;
+	}
 
-		public String getFirstName() {
-			return firstName;
-		}
+	public Department getDepartment() {
+		return department;
+	}
 
-		public void setFirstName(String firstName) {
-			this.firstName = firstName;
-		}
+	public void setDepartment(Department department) {
+		this.department = department;
+	}
 
-		public String getLastName() {
-			return lastName;
-		}
+	public String getSkills() {
+		return skills;
+	}
 
-		public void setLastName(String lastName) {
-			this.lastName = lastName;
-		}
+	public void setSkills(String skills) {
+		this.skills = skills;
+	}
 
-		public String getEmail() {
-			return email;
-		}
+	public String getSalary() {
+		return salary;
+	}
 
-		public void setEmail(String email) {
-			this.email = email;
-		}
+	public void setSalary(String salary) {
+		this.salary = salary;
+	}
 
-		public String getPosition() {
-			return position;
-		}
+	public String getAvailabilityStatus() {
+		return availabilityStatus;
+	}
 
-		public void setPosition(String position) {
-			this.position = position;
-		}
+	public void setAvailabilityStatus(String availabilityStatus) {
+		this.availabilityStatus = availabilityStatus;
+	}
 
-		public String getDepartment() {
-			return department;
-		}
+	public LocalDateTime getLastPerformanceReviewDate() {
+		return lastPerformanceReviewDate;
+	}
 
-		public void setDepartment(String department) {
-			this.department = department;
-		}
+	public void setLastPerformanceReviewDate(LocalDateTime lastPerformanceReviewDate) {
+		this.lastPerformanceReviewDate = lastPerformanceReviewDate;
+	}
 
-		public boolean isActive() {
-			return isActive;
-		}
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
 
-		public void setActive(boolean isActive) {
-			this.isActive = isActive;
-		}
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
 
-	
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+	@PrePersist
+	public void prePersist() {
+	    this.createdAt = LocalDateTime.now();
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+	    this.updatedAt = LocalDateTime.now();
+	} 
+
 
 }

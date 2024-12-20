@@ -9,10 +9,18 @@ import com.spsrh.absService.model.LeaveRequest;
 import com.spsrh.absService.model.LeaveStatus;
 
 @Repository
-	public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long> {
-	    List<LeaveRequest> findByEmployeeId(Long employeeId);
-	    List<LeaveRequest> findByStatus(LeaveStatus status);
-	}
+public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long> {
+	   
+    // Custom query to find LeaveRequests by employee username
+    List<LeaveRequest> findByEmployeeUsername(String employeeUsername);
+
+    // Custom query to find LeaveRequests by manager username
+    List<LeaveRequest> findByManagerUsername(String managerUsername);
+
+    // Custom query to find LeaveRequests by leave status
+    List<LeaveRequest> findByLeaveStatus(LeaveStatus leaveStatus);
+
+}
 
 
 

@@ -1,14 +1,12 @@
 package com.spsrh.userService.service;
 
+import com.spsrh.userService.dto.ManagerDTO;
+
 import java.util.List;
 
-import com.spsrh.userService.dto.ManagerDTO;
-import com.spsrh.userService.model.Manager;
-
 public interface ManagerService {
-    Manager createManager(ManagerDTO managerDTO);
-    List<Manager> getAllManagers();
-    Manager getManagerById(Long id);
-    Manager updateManager(Long id, ManagerDTO managerDTO);
-    void deleteManager(Long id);
+    ManagerDTO getManagerByUsername(String username);
+    List<ManagerDTO> getAllManagers();
+    void addEmployeToTeam(String managerUsername, String employeUsername);
+    void removeEmployeFromTeam(String managerUsername, String employeUsername);
 }

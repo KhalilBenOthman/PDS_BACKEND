@@ -1,9 +1,12 @@
 package com.spsrh.authService.util;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
+
+import com.spsrh.authService.dto.UserDTO;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -23,4 +26,12 @@ public class JwtUtil {
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256) // Use secure key
                 .compact();
     }
+    public static String extractUsernameFromToken(String token) {
+        Claims claims = Jwts.parser()
+                            .setSigningKey(SECRET_KEY)
+                            .parseClaimsJws(token)
+                            .getBody();
+        return claims.getSubject(); // Typically the username is stored as the subject
+    }
+
 }

@@ -30,8 +30,6 @@ spring:
             - Path=/authService/**
           filters:
             - StripPrefix=1
-
-
 eureka:
   client:
     service-url:

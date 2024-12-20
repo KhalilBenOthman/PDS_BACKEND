@@ -1,48 +1,43 @@
 package com.spsrh.userService.model;
 
-import javax.persistence.*;
+
+import java.time.LocalDateTime;
+
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "employees")
-public class Employee {
+@DiscriminatorValue("EMPLOYEE") // This will be used to differentiate Employee type
+@Data
+@EqualsAndHashCode(callSuper = true) // For proper inheritance behavior
+public class Employee extends User {
+    
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long employeeId;
-
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
-    @JsonBackReference
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "manager_id")
-    @JsonBackReference
-    private User manager;
+	@Column(name = "hire_date")
+    private LocalDateTime hireDate; // Example: use LocalDate for proper date handling
 
     @Column(nullable = false)
     private String jobTitle;
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Department department;
-
     @Column
-    private String skills; // JSON or separate skill table can be used
-
-    private String salary;
-    
+    private String skills; // JSON or separate skill table can be used    
+    private String salary; 
     @Column(nullable = false)
-    private String availabilityStatus;
-
-    @Column(name = "hire_date")
-    private LocalDateTime hireDate;
-
+    private String availabilityStatus;    
     @Column(name = "last_performance_review_date")
     private LocalDateTime lastPerformanceReviewDate;
 
@@ -50,32 +45,32 @@ public class Employee {
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-
-    // Getters and setters
+    private LocalDateTime updatedAt;    
     
-	public Long getEmployeeId() {
-		return employeeId;
+    
+    
+    
+    @ManyToOne
+    @JoinColumn(name = "manager_id") // Foreign key to the manager's ID
+    @JsonBackReference
+    private Manager manager; // The manager of this employee
+    
+    
+
+
+	public LocalDateTime getHireDate() {
+		return hireDate;
 	}
 
-	public void setEmployeeId(Long employeeId) {
-		this.employeeId = employeeId;
+	public void setHireDate(LocalDateTime hireDate) {
+		this.hireDate = hireDate;
 	}
 
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	public User getManager() {
+	public Manager getManager() {
 		return manager;
 	}
 
-	public void setManager(User manager) {
+	public void setManager(Manager manager) {
 		this.manager = manager;
 	}
 
@@ -119,14 +114,6 @@ public class Employee {
 		this.availabilityStatus = availabilityStatus;
 	}
 
-	public LocalDateTime getHireDate() {
-		return hireDate;
-	}
-
-	public void setHireDate(LocalDateTime hireDate) {
-		this.hireDate = hireDate;
-	}
-
 	public LocalDateTime getLastPerformanceReviewDate() {
 		return lastPerformanceReviewDate;
 	}
@@ -150,8 +137,6 @@ public class Employee {
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
-
-	
 	@PrePersist
 	public void prePersist() {
 	    this.createdAt = LocalDateTime.now();
@@ -160,6 +145,7 @@ public class Employee {
 	@PreUpdate
 	public void preUpdate() {
 	    this.updatedAt = LocalDateTime.now();
-	}     
-    
+	} 
+
+
 }

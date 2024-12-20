@@ -2,30 +2,20 @@ package com.spsrh.userService.dto;
 
 import java.util.List;
 
-public class ManagerDTO {
-    private Long id;
-    private String teamName;
-    private List<Long> teamMemberIds; // Only IDs of the team members
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-    // Getters and Setters
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public String getTeamName() {
-		return teamName;
-	}
-	public void setTeamName(String teamName) {
-		this.teamName = teamName;
-	}
-	public List<Long> getTeamMemberIds() {
-		return teamMemberIds;
-	}
-	public void setTeamMemberIds(List<Long> teamMemberIds) {
-		this.teamMemberIds = teamMemberIds;
-	}
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class ManagerDTO extends EmployeeDTO {
+    private List<String> teamMemberUsernames; // List of usernames of employees in the manager's team
 
+	public List<String> getTeamMemberUsernames() {
+		return teamMemberUsernames;
+	}
+	public void setTeamMemberUsernames(List<String> teamMemberUsernames) {
+		this.teamMemberUsernames = teamMemberUsernames;
+	}
+    
     
 }

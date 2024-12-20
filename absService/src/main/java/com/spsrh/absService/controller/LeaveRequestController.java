@@ -1,59 +1,91 @@
 package com.spsrh.absService.controller;
 
-import java.util.List;
-
-import org.apache.hc.core5.http.HttpStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.spsrh.absService.dto.CreateLeaveRequestDTO;
+import com.spsrh.absService.dto.EmployeeDTO;
 import com.spsrh.absService.dto.LeaveRequestDTO;
 import com.spsrh.absService.dto.UpdateLeaveStatusDTO;
 import com.spsrh.absService.model.LeaveStatus;
 import com.spsrh.absService.service.LeaveRequestService;
+import com.spsrh.absService.exception.ResourceNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.lang.StackWalker.Option;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
-	@RequestMapping("/api/leave-requests")
-	public class LeaveRequestController {
+@RequestMapping("/api/leave-requests")
+public class LeaveRequestController {
 
-	    @Autowired
-	    private LeaveRequestService leaveRequestService;
+    private final LeaveRequestService leaveRequestService;
 
-	    // 1. Créer une demande de congé
-	    @PostMapping
-	    public ResponseEntity<LeaveRequestDTO> createLeaveRequest(@RequestBody CreateLeaveRequestDTO createLeaveRequestDTO) {
-	        LeaveRequestDTO leaveRequestDTO = leaveRequestService.createLeaveRequest(createLeaveRequestDTO);
-	        return ResponseEntity.status(HttpStatus.SC_CREATED).body(leaveRequestDTO);
-	    }
+    public LeaveRequestController(LeaveRequestService leaveRequestService) {
+        this.leaveRequestService = leaveRequestService;
+    }
 
-	    // 2. Mettre à jour le statut d'une demande
-	    @PutMapping("/status")
-	    public ResponseEntity<LeaveRequestDTO> updateLeaveRequestStatus(@RequestBody UpdateLeaveStatusDTO updateLeaveStatusDTO) {
-	        LeaveRequestDTO updatedRequest = leaveRequestService.updateLeaveRequestStatus(updateLeaveStatusDTO);
-	        return ResponseEntity.ok(updatedRequest);
-	    }
+    // Create a new leave request
+    @PostMapping("/create")
+    public ResponseEntity<LeaveRequestDTO> createLeaveRequest(@RequestBody LeaveRequestDTO leaveRequestDTO) {
+        try {
+            LeaveRequestDTO createdLeaveRequest = leaveRequestService.createLeaveRequest(leaveRequestDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdLeaveRequest);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+    @PostMapping
+    public ResponseEntity<LeaveRequestDTO> createLeaveRequestWithToken(@RequestHeader("Authorization") String token,@RequestBody LeaveRequestDTO leaveRequestDTO) {
+    	String userName = leaveRequestService.getUserFromToken(token);
+		//try {
+			leaveRequestDTO.setEmployeeUsername(userName);
+		   LeaveRequestDTO createdLeaveRequest = leaveRequestService.createLeaveRequest(leaveRequestDTO);
+		   return ResponseEntity.status(HttpStatus.CREATED).body(createdLeaveRequest);
+		/*} catch (ResourceNotFoundException e) {
+		   return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+		}*/
+    	
+    }
+    
+    
+    
+    // Get all leave requests for a specific employee by username
+    @GetMapping("/employee/{username}")
+     public ResponseEntity<List<LeaveRequestDTO>> getLeaveRequestsByEmployeeUsername(@PathVariable String username) {
+        try {
+            List<LeaveRequestDTO> leaveRequests = leaveRequestService.getLeaveRequestsByEmployeeUsername(username);
+            return ResponseEntity.ok(leaveRequests);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 
-	    // 3. Récupérer toutes les demandes d'un employé
-	    @GetMapping("/employee/{employeeId}")
-	    public ResponseEntity<List<LeaveRequestDTO>> getEmployeeLeaveRequests(@PathVariable Long employeeId) {
-	        List<LeaveRequestDTO> leaveRequests = leaveRequestService.getEmployeeLeaveRequests(employeeId);
-	        return ResponseEntity.ok(leaveRequests);
-	    }
+    // Get all leave requests for a specific manager by username
+    @GetMapping("/manager/{username}")
+    public ResponseEntity<List<LeaveRequestDTO>> getLeaveRequestsByManagerUsername(@PathVariable String username) {
+        try {
+            List<LeaveRequestDTO> leaveRequests = leaveRequestService.getLeaveRequestsByManagerUsername(username);
+            return ResponseEntity.ok(leaveRequests);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 
-	    // 4. Récupérer toutes les demandes par statut
-	    @GetMapping("/status/{status}")
-	    public ResponseEntity<List<LeaveRequestDTO>> getLeaveRequestsByStatus(@PathVariable LeaveStatus status) {
-	        List<LeaveRequestDTO> leaveRequests = leaveRequestService.getLeaveRequestsByStatus(status);
-	        return ResponseEntity.ok(leaveRequests);
-	    }
-	}
+    // Update the status of a leave request (approve/reject)
+    @PutMapping("/{leaveRequestId}/status")
+    public ResponseEntity<LeaveRequestDTO> updateLeaveRequestStatus(@PathVariable Long leaveRequestId, @RequestBody UpdateLeaveStatusDTO updateLeaveStatusDTO) {
+        try {
+            LeaveRequestDTO updatedLeaveRequest = leaveRequestService.updateLeaveRequestStatus(leaveRequestId, updateLeaveStatusDTO.getStatus());
+            return ResponseEntity.ok(updatedLeaveRequest);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 
-
-
+    // Get leave requests by status
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<LeaveRequestDTO>> getLeaveRequestsByStatus(@PathVariable LeaveStatus status) {
+        List<LeaveRequestDTO> leaveRequests = leaveRequestService.getLeaveRequestsByStatus(status);
+        return ResponseEntity.ok(leaveRequests);
+    }
+}

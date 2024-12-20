@@ -1,9 +1,10 @@
 package com.spsrh.userService.controller;
 
 import com.spsrh.userService.dto.ManagerDTO;
-import com.spsrh.userService.model.Manager;
+import com.spsrh.userService.exception.ManagerNotFoundException;
+import com.spsrh.userService.exception.InvalidAssignationException;
 import com.spsrh.userService.service.ManagerService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,39 +14,55 @@ import java.util.List;
 @RequestMapping("/api/managers")
 public class ManagerController {
 
-    @Autowired
-    private ManagerService managerService;
+    private final ManagerService managerService;
 
-    // Create Manager
-    @PostMapping
-    public ResponseEntity<Manager> createManager(@RequestBody ManagerDTO managerDTO) {
-        Manager manager = managerService.createManager(managerDTO);
-        return ResponseEntity.ok(manager);
+    public ManagerController(ManagerService managerService) {
+        this.managerService = managerService;
     }
 
-    // Get all Managers
+    // Get a manager by username
+    @GetMapping("/{username}")
+    public ResponseEntity<ManagerDTO> getManager(@PathVariable String username) {
+        try {
+            ManagerDTO manager = managerService.getManagerByUsername(username);
+            return new ResponseEntity<>(manager, HttpStatus.OK);
+        } catch (ManagerNotFoundException ex) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // Get all managers
     @GetMapping
-    public ResponseEntity<List<Manager>> getAllManagers() {
-        return ResponseEntity.ok(managerService.getAllManagers());
+    public ResponseEntity<List<ManagerDTO>> getAllManagers() {
+        List<ManagerDTO> managers = managerService.getAllManagers();
+        return new ResponseEntity<>(managers, HttpStatus.OK);
     }
 
-    // Get Manager by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Manager> getManagerById(@PathVariable Long id) {
-        return ResponseEntity.ok(managerService.getManagerById(id));
+    // Add an employee to a manager’s team
+    @PutMapping("/{managerUsername}/add-employe/{employeUsername}")
+    public ResponseEntity<String> addEmployeToManagerTeam(
+            @PathVariable String managerUsername,
+            @PathVariable String employeUsername) {
+
+        try {
+            managerService.addEmployeToTeam(managerUsername, employeUsername);
+            return new ResponseEntity<>("Employee added to manager's team", HttpStatus.OK);
+        } catch (InvalidAssignationException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
-    // Update Manager
-    @PutMapping("/{id}")
-    public ResponseEntity<Manager> updateManager(@PathVariable Long id, @RequestBody ManagerDTO managerDTO) {
-        Manager updatedManager = managerService.updateManager(id, managerDTO);
-        return ResponseEntity.ok(updatedManager);
-    }
+    // Remove an employee from a manager’s team
+    @PutMapping("/{managerUsername}/remove-employe/{employeUsername}")
+    public ResponseEntity<String> removeEmployeFromManagerTeam(
+            @PathVariable String managerUsername,
+            @PathVariable String employeUsername) {
 
-    // Delete Manager
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteManager(@PathVariable Long id) {
-        managerService.deleteManager(id);
-        return ResponseEntity.noContent().build();
+        try {
+            managerService.removeEmployeFromTeam(managerUsername, employeUsername);
+            return new ResponseEntity<>("Employee removed from manager's team", HttpStatus.OK);
+        } catch (InvalidAssignationException ex) {
+            return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 }
